@@ -1,0 +1,28 @@
+name: Nasuni_Tines_Webhook
+endpoint: https://blue-lake-5502.tines.com/webhook/6d2dd4c3a92c6c8b44062e2dd79607c8/bbf83e80bb294bdebec24eb752c82543
+allowInsecureSSL: false
+$schema: https://schemas.humio.com/action/v0.5.0
+method: POST
+body: |-
+  {
+    "repository": "{repo_name}",
+    "timestamp": "{triggered_timestamp}",
+    "alert": {
+      "name": "{name}",
+      "description": "{description}",
+      "query": {
+        "queryString": "{query_string} ",
+        "end": "{query_time_end}",
+        "start": "{query_time_start}"
+      },
+      "notifierID": "{action_id}",
+      "id": "{id}"
+    },
+    "warnings": "{warnings}",
+    "events": {events},
+    "numberOfEvents": {event_count}
+    }
+headers:
+- header: Content-Type
+  value: application/json
+type: webhook

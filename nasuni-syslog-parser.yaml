@@ -1,0 +1,61 @@
+name: nasuni-syslog
+tests:
+- <140>1 2024-02-15T16:30:33.134021-05:00 klad-nbk-nea-01 nasuni.noteman 3608 8958304169
+  - Antivirus has flagged file(s) on volume pi-klad-vol1
+- '<134>1 2024-01-31T16:12:09.414372-05:00 klad-nbk-nea-01 nasuni.de01f2a3-dfec-4307-8e67-9
+  10277 2462211369 - {"to_gid": null, "event_type": "AUDIT_RENAME", "sequence": 128324,
+  "pid": 24606, "groupname": "KLADIS\\domain users", "result": 0, "uid": 401106, "is_dir":
+  false, "size": null, "timestamp": 1706735529.3939688, "proto": "AUDIT_PROTO_CIFS",
+  "ipaddr": "172.16.25.102", "ts": null, "to": null, "gid": 400513, "filesize": null,
+  "to_uid": null, "sid": "S-1-5-21-1729353369-464595592-110902534-1106", "tid": 24606,
+  "username": "KLADIS\\jim", "path_timestamp": 0.0, "datasync": null, "volume": "de01f2a3-dfec-4307-8e67-936ddbc0ac49_9",
+  "offset": null, "path": "/New Text Document (2).txt", "newpath": "/New2.txt", "shared_link_key":
+  null, "resource": "pi-klad-vol1, cyber1", "name": null, "length": null, "flags":
+  null, "mode": null}'
+- <137>1 2024-01-23T20:56:42.448044-05:00 klad-nbk-nea-01 nasuni.noteman 3608 5032340360
+  - The Filer has detected a new ransomware attack from user KLADIS\jim (172.16.25.20)
+  on volume pi-klad-vol1. Confidence level at the time of detection was "Low (2)".
+  Visit the Cyber Resilience - Incident Management page for more details.
+- '<137>1 2024-01-23T20:57:14.227078-05:00 klad-nbk-nea-01 nasuni.noteman 3608 9902393862
+  - The Filer has enforced the mitigation policy on volume pi-klad-vol1 and blocked
+  an IP Address (172.16.25.20). Visit the following link for recovery information:
+  <a href="https://b.link/Nasuni_Ransomware" target="_blank" rel="noopener noreferrer">Ransomware
+  Information</a>.'
+- '<12>Jan  3 12:14:41 dpinger: GW_VeeamPN 172.16.100.200: sendto error: 64'
+- 'May 11 10:40:48 scrooge disk-health-nurse[26783]: [ID 702911 user.error] m:SY-mon-full-500
+  c:H : partition health measures for /var did not suffice - still using 96% of partition
+  space'
+- '<34>Oct 11 22:14:15 mymachine su: ''su root'' failed for lonvick on /dev/pts/8'
+- 'Oct 11 22:14:15 su: ''su root'' failed for lonvick on /dev/pts/8'
+- 'Feb 25 06:35:01 Myhost CRON[24272]: (root) CMD (command -v deb-sa1 > /dev/null
+  && deb-sa1 1 1)'
+fieldsToBeRemovedBeforeParsing: []
+$schema: https://schemas.humio.com/parser/v0.2.0
+script: "case {\n\n//Match Nasuni Syslog Messages Where Messages Contain Content About\
+  \ Ransomware Attack\n/<(?<priority>\\d+)>(?<version>\\d+)\\s(?<@timestamp>\\S+)\\\
+  s+(?<host>\\S+)\\s+(?<app>\\S+)\\s+(?<procid>\\S+)\\s+(?<msgid>\\S+)\\s+(\\S+)\\\
+  s*The Filer has detected a new ransomware attack from user (?<nea_user>\\S+) \\\
+  ((?<nea_client_IP>\\S+)\\) on volume (?<nea_volume>\\S+)\\. Confidence level at\
+  \ the time of detection was \\\"(?<confidence_name>\\S+) \\((?<confidence_value>\\\
+  d)\\)\\\".*/ | parseTimestamp(\"yyyy-MM-dd'T'HH:mm:ss[.SSSSSS]XXX\", field=@timestamp);\n\
+  \n//Match Nasuni Syslog Messages Where Messages Contain Content About Ransomware\
+  \ Mitigation Enforcement\n/<(?<priority>\\d+)>(?<version>\\d+)\\s(?<@timestamp>\\\
+  S+)\\s+(?<host>\\S+)\\s+(?<app>\\S+)\\s+(?<procid>\\S+)\\s+(?<msgid>\\S+)\\s+(\\\
+  S+)\\s*The Filer has enforced the mitigation policy on volume (?<nea_volume>\\S+)(.*)\
+  \ and blocked an IP Address \\((?<nea_client_IP>\\S+)\\).*/ | parseTimestamp(\"\
+  yyyy-MM-dd'T'HH:mm:ss[.SSSSSS]XXX\", field=@timestamp);\n\n//Match Nasuni Syslog\
+  \ Messages Where Messages Contain Content About ClamAV\n/<(?<priority>\\d+)>(?<version>\\\
+  d+)\\s(?<@timestamp>\\S+)\\s+(?<host>\\S+)\\s+(?<app>\\S+)\\s+(?<procid>\\S+)\\\
+  s+(?<msgid>\\S+)\\s+(\\S+)\\s*Antivirus has flagged file\\(s\\) on volume (?<nea_volume>\\\
+  S+).*/ | parseTimestamp(\"yyyy-MM-dd'T'HH:mm:ss[.SSSSSS]XXX\", field=@timestamp);\n\
+  \n//Match Nasuni Syslog Audit Messages with embeded JSON\n/<(?<priority>\\d+)>(?<version>\\\
+  d+)\\s(?<@timestamp>\\S+)\\s+(?<host>\\S+)\\s+(?<app>\\S+)\\s+(?<procid>\\S+)\\\
+  s+(?<msgid>\\S+)\\s+(?<structuredata>\\S+)(?<msg>.*)/ | parseTimestamp(\"yyyy-MM-dd'T'HH:mm:ss[.SSSSSS]XXX\"\
+  , field=@timestamp) | parseJson(msg);\n\n//Raw Catch-All\n/LOCAL\\d.*/;\n\n//Canned\
+  \ LogScale Syslog Parser\n/(<(?<priority>\\d+)>)?(?<@timestamp>\\S+\\s+\\S+\\s+\\\
+  S+)\\s+(?<host>\\S+)?\\s+(?<app>[^\\s\\[:]+)?(\\[(?<pid>[^\\]]+)\\]:)?(?<msg>.*)/\
+  \ |\nparseTimestamp(\"MMM [ ]d HH:mm:ss\", field=@timestamp, timezone=\"UTC\");\n\
+  \n/(<(?<priority>\\d+)>)?(?<@timestamp>\\S+)\\s+(?<host>\\S+)?\\s+(?<app>[^\\s\\\
+  [:]+)?(\\[(?<pid>\\d+)\\]:)?(?<msg>.*)/ | parseTimestamp(\"yyyy-MM-dd'T'HH:mm:ss[.SSS]XXX\"\
+  , field=@timestamp);\n} | kvParse() "
+tagFields: []

@@ -1,0 +1,42 @@
+## This is YAML, so structure and indentation is important.
+## Lines can be uncommented by removing the #. You should not need to change the number of spaces after that.
+## Configuration options have a single #, comments have a ##. Only uncomment the single # lines if you need them.
+#####
+
+sources:
+  # Collect syslog udp 514.
+  syslog_udp_514:
+    type: syslog
+    mode: udp
+    port: 514
+    sink: logscale
+    ## Syslog UDP uses multiple workers by default if you want to use the 1.5v set workers to 1.
+    #workers: 1
+    ## You can manually specify a parser to be used here.
+    ## This overrides the parser specified in the LogScale UI.
+    #parser: SampleSyslogParser
+##   Optional: Max allowed event size (default = 2048 bytes) messages larger than this will be truncated
+##  NOTE: Setting maxEventSize above the max allowed value will cause the FLC service to not start
+#    maxEventSize: 1048576
+
+  # Collect syslog tcp 514.
+  syslog_tcp_514:
+    type: syslog
+    mode: tcp
+    port: 514
+    supportsOctetCounting: false
+    strict: false
+    sink: logscale
+##   Optional: Max allowed event size (default = 2048 bytes) messages larger than this will be truncated
+#    maxEventSize: 1048576
+
+  
+sinks:
+  logscale:
+    type: logscale
+    # Replace with your ingest token.
+    token: cdd14ee9-cec8-4a46-a26b-1cbed21acca6
+    # Replace with the "Ingest URL" on the FLC download page. It must include the "https://" at the beginning.
+    url: https://nasuni.ingest.logscale.us-2.crowdstrike.com
+    # This sets the maximum allowed single event size to 1 MB; larger messages will be truncated
+    #maxEventSize: 1048576

@@ -1,0 +1,15 @@
+name: Nasuni Ransomware Mitigation has Occured on {field:host}
+description: |-
+  The Nasuni Ransomware Protection service has mitigated an attack from {field:nea_client_IP}. To view incident detail and mitigation options, please visit the NMC at https://172.16.25.238/volumes/ransomware/incident_management/.
+
+  Additional Details:
+  Client IP Address: {field:nea_client_IP}
+  Nasuni Volume: {field:nea_volume}
+enabled: true
+actionNameReferences:
+- Nasuni_Email_1
+- Nasuni_Tines_Webhook
+$schema: https://schemas.humio.com/alert/v0.3.0
+throttleTime: 5m
+timeInterval: 5m
+queryString: '@rawstring like " enforced the mitigation policy"'

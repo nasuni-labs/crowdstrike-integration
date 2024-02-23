@@ -1,0 +1,49 @@
+name: Nasuni_Alerts
+timeSelector: {}
+sharedTimeInterval:
+  enabled: false
+  isLive: false
+  start: 1d
+widgets:
+  70c254b8-6a52-40e1-94c2-9aa306f0c3b9:
+    x: 0
+    y: 4
+    height: 4
+    queryString: |-
+      proto = "AUDIT_PROTO_CIFS"
+      | join({@rawstring like " new ransomware attack" or " enforced the mitigation policy"}, field=username, key=nea_user, mode=left)
+      | groupBy(["ipaddr","username","newpath"])
+    end: now
+    start: 5m
+    width: 4
+    options:
+      cell-overflow: wrap-text
+      configured-columns: {}
+      row-numbers-enabled: false
+    visualization: table-view
+    title: Nasuni Audit Events by Incident User in Last 5 Minutes
+    isLive: false
+    type: query
+  b607b843-5f68-426e-b4e3-d61d7a2585fb:
+    x: 0
+    y: 0
+    height: 4
+    queryString: '@rawstring like " new ransomware attack" or " enforced the mitigation
+      policy"'
+    end: now
+    start: 1h
+    width: 4
+    options:
+      columns: '[{"type":"field","fieldName":"@timestamp","format":"datetime","width":"content"},{"type":"field","fieldName":"@rawstring","format":"logline"}]'
+      newestAtBottom: 'true'
+      showOnlyFirstLine: 'false'
+    visualization: list-view
+    title: Nasuni Ransomware Protection Events in Last Hour
+    isLive: false
+    type: query
+$schema: https://schemas.humio.com/dashboard/v0.15.0
+parameters:
+  new-param:
+    defaultValue: '*'
+    order: 50
+    type: text

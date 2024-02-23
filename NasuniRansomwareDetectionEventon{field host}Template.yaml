@@ -1,0 +1,17 @@
+name: Nasuni Ransomware Detection Event on {field:host}
+description: |-
+  A new incident has been created on Nasuni Edge Appliance {field:host}. The incident was triggered by user {field:nea_user}. To view incident detail and mitigation options, please visit the NMC at https://172.16.25.238/volumes/ransomware/incident_management/.
+
+  Additional Details:
+  Triggering User: {field:nea_user}
+  Client IP Address: {field:nea_client_IP}
+  Nasuni Volume: {field:nea_volume}
+  Confidence Level: {field:confidence_name} ({field:confidence_value})
+enabled: true
+actionNameReferences:
+- Nasuni_Email_1
+- Nasuni_Tines_Webhook
+$schema: https://schemas.humio.com/alert/v0.3.0
+throttleTime: 5m
+timeInterval: 5m
+queryString: '@rawstring like " new ransomware attack"'
