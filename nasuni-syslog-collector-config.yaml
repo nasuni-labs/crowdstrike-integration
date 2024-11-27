@@ -1,0 +1,14 @@
+dataDirectory: C:\ProgramData\LogScale Collector\
+sources:   
+    #ingest partner syslog udp 514.   
+    syslog_udp_514:     
+       type: syslog     
+       mode: udp     
+       port: 514     
+       sink: humio 
+sinks:   
+     humio:     
+        type: hec     
+        proxy: none     
+        token: <Place Your NG-SIEM Token Here>     
+        url:   <Place Your NG-SIEM URL Here>

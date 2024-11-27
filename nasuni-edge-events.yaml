@@ -1,0 +1,88 @@
+name: Nasuni_Syslog
+fieldsToBeRemovedBeforeParsing: []
+testCases:
+- event:
+    rawString: '<142>1 2024-11-04T16:05:12.247939-05:00 klad-nbk-nea-01 nasuni.noteman
+      4745 8409912193 - Antivirus scan skipped for volume pi-klad-vol1: No need.'
+- event:
+    rawString: '<134>1 2024-09-04T17:32:06.204111-04:00 klad-nbk-nea-01 nasuni.de01f2a3-dfec-4307-8e67-9
+      8810 6411120789 - {"to_gid": null, "event_type": "AUDIT_RENAME", "sequence":
+      158840, "pid": 26425, "groupname": "KLADIS\\domain users", "result": 0, "uid":
+      401106, "is_dir": false, "size": null, "timestamp": 1725485526.2028925, "proto":
+      "AUDIT_PROTO_CIFS", "ipaddr": "172.16.25.102", "ts": null, "to": null, "gid":
+      400513, "filesize": null, "to_uid": null, "sid": "S-1-5-21-1729353369-464595592-110902534-1106",
+      "tid": 26425, "username": "KLADIS\\jim", "path_timestamp": 0.0, "datasync":
+      null, "volume": "de01f2a3-dfec-4307-8e67-936ddbc0ac49_6", "offset": null, "path":
+      "/R2/dummy_file_331.json.lockbit.lockbit", "newpath": "/R2/dummy_file_331.json.lockbit.lockbit.lockbit",
+      "shared_link_key": null, "resource": "pi-klad-vol1, cyber1, scube", "name":
+      null, "length": null, "flags": null, "mode": null}'
+- event:
+    rawString: '<137>1 2024-09-04T17:32:02.117693-04:00 klad-nbk-nea-01 nasuni.noteman
+      5019 1764996033 - The Filer has detected a new ransomware attack from user KLADIS\jim
+      (172.16.25.102) on volume pi-klad-vol1. Detected known signatures: (*.lockbit).
+      Confidence level at the time of detection was "Low (2)". Visit the Cyber Resilience
+      - Incident Management page for more details.'
+- event:
+    rawString: '<137>1 2024-09-04T17:32:02.117693-04:00 klad-nbk-nea-01 nasuni.noteman
+      5019 1764996033 - The Filer has detected a new ransomware attack from user KLADIS\jim
+      (172.16.25.102) on volume pi-klad-vol1. Detected known signatures: (*.lockbit).
+      Confidence level at the time of detection was "Low (2)". Visit the Cyber Resilience
+      - Incident Management page for more details.'
+- event:
+    rawString: '<137>1 2024-01-23T20:57:14.227078-05:00 klad-nbk-nea-01 nasuni.noteman
+      3608 9902393862 - The Filer has enforced the mitigation policy on volume pi-klad-vol1
+      and blocked an IP Address (172.16.25.20). Visit the following link for recovery
+      information: <a href="https://b.link/Nasuni_Ransomware" target="_blank" rel="noopener
+      noreferrer">Ransomware Information</a>.'
+$schema: https://schemas.humio.com/parser/v0.3.0
+script: |+
+  // #Parse Nasuni Syslog
+  /************************************************************
+  ****** Parse RWP Attacks
+  ****** Parse RWP Mittigation
+  ****** Parse ClamAV
+  ****** Parse AuditLog JSON
+  ****** Parse NMC/NEA General Messages
+  ************************************************************/
+
+  case {
+
+  //Match Nasuni Syslog Messages Where Messages Contain Content About Ransomware Attack - 9.14+
+  /<(?<Vendor.priority>\d+)>(?<Vendor.version>\d+)\s(?<nasuni_ts>\S+)\s+(?<host>\S+)\s+(?<Vendor.app>\S+)\s+(?<Vendor.procid>\S+)\s+(?<Vendor.msgid>\S+)\s+(\S+)\s*The Filer has detected a new ransomware attack from user (?<Vendor.nea_user>\S+) \((?<Vendor.nea_client_IP>\S+)\) on volume (?<Vendor.nea_volume>\S+)\. Detected known signatures: \((?<Vendor.signature>\S+)\)\. Confidence level at the time of detection was \"(?<Vendor.confidence_name>\S+) \((?<Vendor.confidence_value>\d)\)\".*\s*/;
+
+  //Match Nasuni Syslog Messages Where Messages Contain Content About Ransomware Mitigation Enforcement
+  /<(?<Vendor.priority>\d+)>(?<Vendor.version>\d+)\s(?<nasuni_ts>\S+)\s+(?<host>\S+)\s+(?<Vendor.app>\S+)\s+(?<Vendor.procid>\S+)\s+(?<Vendor.msgid>\S+)\s+(\S+)\s*The Filer has enforced the mitigation policy on volume (?<Vendor.nea_volume>\S+)(.*) and blocked an IP Address \((?<Vendor.nea_client_IP>\S+)\).*/;
+
+  //Match Nasuni Syslog Messages Where Messages Contain Content About ClamAV
+  /<(?<Vendor.priority>\d+)>(?<Vendor.version>\d+)\s(?<nasuni_ts>\S+)\s+(?<host>\S+)\s+(?<Vendor.app>\S+)\s+(?<Vendor.procid>\S+)\s+(?<Vendor.msgid>\S+)\s+(\S+)\s*Antivirus has flagged file\(s\) on volume (?<Vendor.nea_volume>\S+).*/;
+
+  //Match Nasuni NMC General Messages
+  /<(?<Vendor.priority>\d+)>(?<Vendor.version>\d+)\s(?<nasuni_ts>[^\s]+)\s+(?<host>[^\s]+)\s+(?<Vendor.app>[^\s]+)\s+(?<Vendor.procid>\S+)\s+(?<Vendor.msgid>\S+)\s+-\s+(?<Vendor.msg>[^{}]+)/;
+
+  //Match Nasuni Syslog Audit Messages with embeded JSON
+  /<(?<Vendor.priority>\d+)>(?<Vendor.version>\d+)\s(?<nasuni_ts>\S+)\s+(?<host>\S+)\s+(?<Vendor.app>\S+)\s+(?<Vendor.procid>\S+)\s+(?<Vendor.msgid>\S+)\s+(?<Vendor.structuredata>\S+)(?<Vendor.msg>.*)/
+  | parseJson(Vendor.msg);
+  }
+  | parseTimestamp("yyyy-MM-dd'T'HH:mm:ss[.SSSSSS]XXX", field=nasuni_ts)
+  | drop([nasuni_ts])
+  | kvParse()
+
+
+  | Parser.version := "1.0.3"
+  | Vendor := "nasuni"
+  | event.module := "nea"
+  | ecs.version := "8.11.0"
+  | event.kind := "event"
+  | Cps.version := "1.0.0"
+  | host.os.type := "linux"
+  | host.os.platform := "os7"
+
+tagFields:
+- Cps.version
+- Vendor
+- ecs.version
+- event.dataset
+- event.kind
+- event.module
+- event.outcome
+- observer.type
