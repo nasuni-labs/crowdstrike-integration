@@ -1,43 +1,28 @@
 # crowdstrike-integration
-Templates to trigger CrowdStrike XDR with Advanced Ransomware Protection Events using LogScale and Tines.
+Templates to collect Nasuni syslog events, including Advanced Ransomware Protection, and forward into CrowdStrike XDR events using Falcon NG-SIEM.
 
 ## About
-CrowdStrike LogScale (formerly Humio) is a log and event collection platform that includes search, reporting, dashboards and alert actions. The platform collects logs/events through an API integration, or otherwise a log collection agent, and into a storage repository for parsing and ingest.
+CrowdStrike NG-SIEM extends real-time detection to external third parties by joining the CrowdStrike LogScale (formerly Humio) service into Falcon XDR and working with third party logs. This allows Nasuni syslog messages to be ingested and processed, then be made ready for search, reporting, dashboards and alert actions. Logs are collected using a premise-based collection agent, and into the storage repository for parsing and processing.
 
 ## Integration with Nasuni
-The Falcon LogScale Collector is the native log shipper for LogScale. It can collect and send Nasuni syslog events, then using secure ingest tokens route data to the correct LogScale repository. When collecting Advanced Ransomware incidents, event correlation with other Falcon sensor, other LogScale integrations, or combination thereof can be visualized or acted upon.
+The Falcon LogScale Collector is the native log shipper for NG-SIEM that runs on prem. It can forward Nasuni syslog events, to the correct LogScale repository. When collecting Advanced Ransomware incidents, event correlation with other Falcon sensor, other LogScale integrations, or combination thereof can be visualized or acted upon.
 
 ## Integration with CrowdStrike Falcon XDR
-LogScale promotes a 3rd party integration with Tines, a workflow automation service builder. It allows for custom built workflows that can accept webhooks from LogScale, and from there an API request can be made to a Falcon instance to perform actions such as containing hosts. 
-
-The Tines community edition limits are currently:
-* 3 Builders
-* 1 Team
-* Unlimited viewers
-* 3 Stories
-* 500 Story Runs Daily
+The Falcon NG-SIEM Collector forwards Nasuni syslog events into the correct NG-SIEM repository. When collecting Advanced Ransomware incidents, log correlation, incident creation and Fusion SOAR workflows can be executed.
 
 ## Integration Requirements
+* Nasuni syslog service must target a deployed collector.
+* Operating System to Host a Falcon Logscale Collector (Linux or Windows).
 * NEA Syslog Configuration
 * NEA Audit Events (optional)
-* CrowdStrike Falcon XDR and API
-* CrowdStrike Logscale Endpoint
-* Tines Environment
+* CrowdStrike Falcon XDR and NG-SIEM Subscription
 
 ## Integration Templates
 * nasuni-syslog-collector-config.yaml
   * Provides an example configuration file to enable the LogScale collector to listen for syslog traffic and forward to the account.
-* nasuni-syslog-parser.yaml
+* nasuni-edge-events.yaml
   * Log format parser that will create fields based on the current Nasuni Ransomware event message text, and also convert the JSON audit syslog events into fields.
 * Nasuni_Alerts.yaml
   * Dashboard templates to display Ransomware events of the last hour, and correlated audit events of the last 5 minutes.
-* Nasuni_Tines_Webhook.yaml
-  * Automation action to create a webhook to Tines.
 * Nasuni_Email_1.yaml
   * Automation action with email recipient information.
-* NasuniRansomwareDetectionEventon{field host}Template.yaml
-  * Automation alert that will act on detection of a Ransomware event, and will execute two actions (email and webhook).
-* NasuniRansomwareMitigationhasOccuredon{field host}Template.yaml
-  * Automation alert that will act on mitigation of a Ransomware event, and will execute two actions (email and webhook).
-* contain-a-registered-device-with-crowdstrike.json
-  * Tines Story template for listening on a webhook, establishing a connection to Falcon XDR, which will learn the client based on the host IP address, then peform an isolation action.
