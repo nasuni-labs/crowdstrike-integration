@@ -1,10 +1,77 @@
-name: Nasuni_Syslog
+name: nasuni-edge
 fieldsToBeRemovedBeforeParsing: []
 testCases:
-- event:
+- assertions:
+  - fieldsHaveValues:
+      log.syslog.appname: nasuni.noteman
+      event.provider: clamav
+      log.syslog.version: '1'
+      event.type[0]: indicator
+      '#event.outcome': success
+      log.syslog.msgid: '8958304169'
+      volume.mount_name: pi-klad-vol1
+      '#event.kind': alert
+      event.category[0]: threat
+      host.name: klad-nbk-nea-01
+      log.syslog.procid: '3608'
+      log.syslog.priority: '140'
+    outputEventIndex: 0
+  event:
+    rawString: <140>1 2024-02-15T16:30:33.134021-05:00 klad-nbk-nea-01 nasuni.noteman
+      3608 8958304169 - Antivirus has flagged file(s) on volume pi-klad-vol1
+- assertions:
+  - fieldsHaveValues:
+      log.syslog.appname: nasuni.noteman
+      event.provider: nmc
+      log.syslog.version: '1'
+      event.type[0]: info
+      '#event.outcome': success
+      log.syslog.msgid: '8409912193'
+      '#event.kind': event
+      event.category[0]: configuration
+      host.name: klad-nbk-nea-01
+      log.syslog.procid: '4745'
+      message: 'Antivirus scan skipped for volume pi-klad-vol1: No need.'
+      log.syslog.priority: '142'
+    outputEventIndex: 0
+  event:
     rawString: '<142>1 2024-11-04T16:05:12.247939-05:00 klad-nbk-nea-01 nasuni.noteman
       4745 8409912193 - Antivirus scan skipped for volume pi-klad-vol1: No need.'
-- event:
+- assertions:
+  - fieldsHaveValues:
+      log.syslog.appname: nasuni.de01f2a3-dfec-4307-8e67-9
+      event.sequence: '158840'
+      event.type[0]: change
+      log.syslog.msgid: '6411120789'
+      Vendor.timestamp: '1725485526.2028925'
+      log.syslog.procid: '8810'
+      user.name: jim
+      process.pid: '26425'
+      user.domain: KLADIS
+      event.provider: auditman
+      Vendor.resource: pi-klad-vol1, cyber1, scube
+      log.syslog.version: '1'
+      Vendor.path_timestamp: '0.0'
+      Vendor.path: /R2/dummy_file_331.json.lockbit.lockbit
+      '#event.outcome': success
+      Vendor.is_dir: 'false'
+      '#event.kind': event
+      Vendor.sid: S-1-5-21-1729353369-464595592-110902534-1106
+      Vendor.volume: de01f2a3-dfec-4307-8e67-936ddbc0ac49_6
+      event.category[0]: file
+      Vendor.gid: '400513'
+      host.name: klad-nbk-nea-01
+      source.ip: 172.16.25.102
+      Vendor.uid: '401106'
+      Vendor.event_type: AUDIT_RENAME
+      log.syslog.priority: '134'
+      Vendor.result: '0'
+      Vendor.proto: AUDIT_PROTO_CIFS
+      Vendor.newpath: /R2/dummy_file_331.json.lockbit.lockbit.lockbit
+      Vendor.groupname: KLADIS\domain users
+      Vendor.tid: '26425'
+    outputEventIndex: 0
+  event:
     rawString: '<134>1 2024-09-04T17:32:06.204111-04:00 klad-nbk-nea-01 nasuni.de01f2a3-dfec-4307-8e67-9
       8810 6411120789 - {"to_gid": null, "event_type": "AUDIT_RENAME", "sequence":
       158840, "pid": 26425, "groupname": "KLADIS\\domain users", "result": 0, "uid":
@@ -16,67 +83,191 @@ testCases:
       "/R2/dummy_file_331.json.lockbit.lockbit", "newpath": "/R2/dummy_file_331.json.lockbit.lockbit.lockbit",
       "shared_link_key": null, "resource": "pi-klad-vol1, cyber1, scube", "name":
       null, "length": null, "flags": null, "mode": null}'
-- event:
+- assertions:
+  - fieldsHaveValues:
+      log.syslog.appname: nasuni.noteman
+      event.provider: rwp
+      log.syslog.version: '1'
+      event.type[0]: allowed
+      '#event.outcome': success
+      Vendor.signature: '*.lockbit'
+      log.syslog.msgid: '1764996033'
+      volume.mount_name: pi-klad-vol1
+      '#event.kind': alert
+      event.category[0]: network
+      host.name: klad-nbk-nea-01
+      event.type[1]: indicator
+      log.syslog.procid: '5019'
+      log.syslog.priority: '137'
+      user.name: KLADIS\jim
+      Vendor.confidence_name: Low
+      event.category[1]: threat
+      client.ip: 172.16.25.102
+      Vendor.confidence_value: '2'
+    outputEventIndex: 0
+  event:
     rawString: '<137>1 2024-09-04T17:32:02.117693-04:00 klad-nbk-nea-01 nasuni.noteman
       5019 1764996033 - The Filer has detected a new ransomware attack from user KLADIS\jim
       (172.16.25.102) on volume pi-klad-vol1. Detected known signatures: (*.lockbit).
       Confidence level at the time of detection was "Low (2)". Visit the Cyber Resilience
       - Incident Management page for more details.'
-- event:
+- assertions:
+  - fieldsHaveValues:
+      log.syslog.appname: nasuni.noteman
+      event.provider: rwp
+      log.syslog.version: '1'
+      event.type[0]: allowed
+      '#event.outcome': success
+      Vendor.signature: '*.lockbit'
+      log.syslog.msgid: '1764996033'
+      volume.mount_name: pi-klad-vol1
+      '#event.kind': alert
+      event.category[0]: network
+      host.name: klad-nbk-nea-01
+      event.type[1]: indicator
+      log.syslog.procid: '5019'
+      log.syslog.priority: '137'
+      user.name: KLADIS\jim
+      Vendor.confidence_name: Low
+      event.category[1]: threat
+      client.ip: 172.16.25.102
+      Vendor.confidence_value: '2'
+    outputEventIndex: 0
+  event:
     rawString: '<137>1 2024-09-04T17:32:02.117693-04:00 klad-nbk-nea-01 nasuni.noteman
       5019 1764996033 - The Filer has detected a new ransomware attack from user KLADIS\jim
       (172.16.25.102) on volume pi-klad-vol1. Detected known signatures: (*.lockbit).
       Confidence level at the time of detection was "Low (2)". Visit the Cyber Resilience
       - Incident Management page for more details.'
-- event:
+- assertions:
+  - fieldsHaveValues:
+      log.syslog.appname: nasuni.noteman
+      event.provider: mit
+      log.syslog.version: '1'
+      event.type[0]: denied
+      '#event.outcome': success
+      log.syslog.msgid: '9902393862'
+      volume.mount_name: pi-klad-vol1
+      event.category[1]: threat
+      '#event.kind': alert
+      event.category[0]: network
+      host.name: klad-nbk-nea-01
+      event.type[1]: indicator
+      log.syslog.procid: '3608'
+      log.syslog.priority: '137'
+      client.ip: 172.16.25.20
+    outputEventIndex: 0
+  event:
     rawString: '<137>1 2024-01-23T20:57:14.227078-05:00 klad-nbk-nea-01 nasuni.noteman
       3608 9902393862 - The Filer has enforced the mitigation policy on volume pi-klad-vol1
       and blocked an IP Address (172.16.25.20). Visit the following link for recovery
       information: <a href="https://b.link/Nasuni_Ransomware" target="_blank" rel="noopener
       noreferrer">Ransomware Information</a>.'
 $schema: https://schemas.humio.com/parser/v0.3.0
-script: |+
-  // #Parse Nasuni Syslog
+script: |-
+  // Nasuni Edge Parser
+  // Copyright Nasuni
+
+  // #region PREPARSE
   /************************************************************
-  ****** Parse RWP Attacks
-  ****** Parse RWP Mittigation
-  ****** Parse ClamAV
-  ****** Parse AuditLog JSON
-  ****** Parse NMC/NEA General Messages
+  ****** Parse timestamp and log headers
+  ****** Extract message field for parsing
+  ****** Parse structured data
   ************************************************************/
 
   case {
+    // Match Nasuni Syslog Messages Where Messages Contain Content About Ransomware Attack - 9.14+
+    @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>\S+)\s+(?<host.name>\S+)\s+(?<log.syslog.appname>\S+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+(\S+)\s*The Filer has detected a new ransomware attack from user (?<user.name>\S+) \((?<client.ip>\S+)\) on volume (?<volume.mount_name>\S+)\. Detected known signatures: \((?<Vendor.signature>\S+)\)\. Confidence level at the time of detection was \"(?<Vendor.confidence_name>\S+) \((?<Vendor.confidence_value>\d)\)\".*\s*/
+      | event.provider := "rwp";
 
-  //Match Nasuni Syslog Messages Where Messages Contain Content About Ransomware Attack - 9.14+
-  /<(?<Vendor.priority>\d+)>(?<Vendor.version>\d+)\s(?<nasuni_ts>\S+)\s+(?<host>\S+)\s+(?<Vendor.app>\S+)\s+(?<Vendor.procid>\S+)\s+(?<Vendor.msgid>\S+)\s+(\S+)\s*The Filer has detected a new ransomware attack from user (?<Vendor.nea_user>\S+) \((?<Vendor.nea_client_IP>\S+)\) on volume (?<Vendor.nea_volume>\S+)\. Detected known signatures: \((?<Vendor.signature>\S+)\)\. Confidence level at the time of detection was \"(?<Vendor.confidence_name>\S+) \((?<Vendor.confidence_value>\d)\)\".*\s*/;
+    // Match Nasuni Syslog Messages Where Messages Contain Content About Ransomware Mitigation Enforcement
+    @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>\S+)\s+(?<host.name>\S+)\s+(?<log.syslog.appname>\S+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+(\S+)\s*The Filer has enforced the mitigation policy on volume (?<volume.mount_name>\S+)(.*)and blocked an IP Address \((?<client.ip>\S+)\)\s*.*href="(?<threat.indicator.reference>https?:\/\/[^\"]+)"/
+      | event.provider := "mit";
 
-  //Match Nasuni Syslog Messages Where Messages Contain Content About Ransomware Mitigation Enforcement
-  /<(?<Vendor.priority>\d+)>(?<Vendor.version>\d+)\s(?<nasuni_ts>\S+)\s+(?<host>\S+)\s+(?<Vendor.app>\S+)\s+(?<Vendor.procid>\S+)\s+(?<Vendor.msgid>\S+)\s+(\S+)\s*The Filer has enforced the mitigation policy on volume (?<Vendor.nea_volume>\S+)(.*) and blocked an IP Address \((?<Vendor.nea_client_IP>\S+)\).*/;
+    // Match Nasuni Syslog Messages Where Messages Contain Content About ClamAV
+    @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>\S+)\s+(?<host.name>\S+)\s+(?<log.syslog.appname>\S+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+(\S+)\s*Antivirus has flagged file\(s\) on volume (?<volume.mount_name>\S+).*/
+      | event.provider := "clamav";
 
-  //Match Nasuni Syslog Messages Where Messages Contain Content About ClamAV
-  /<(?<Vendor.priority>\d+)>(?<Vendor.version>\d+)\s(?<nasuni_ts>\S+)\s+(?<host>\S+)\s+(?<Vendor.app>\S+)\s+(?<Vendor.procid>\S+)\s+(?<Vendor.msgid>\S+)\s+(\S+)\s*Antivirus has flagged file\(s\) on volume (?<Vendor.nea_volume>\S+).*/;
+    // Match Nasuni NMC General Messages
+    @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>[^\s]+)\s+(?<host.name>[^\s]+)\s+(?<log.syslog.appname>[^\s]+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+-\s+(?<message>[^{}]+)/
+      | event.provider := "nmc";
 
-  //Match Nasuni NMC General Messages
-  /<(?<Vendor.priority>\d+)>(?<Vendor.version>\d+)\s(?<nasuni_ts>[^\s]+)\s+(?<host>[^\s]+)\s+(?<Vendor.app>[^\s]+)\s+(?<Vendor.procid>\S+)\s+(?<Vendor.msgid>\S+)\s+-\s+(?<Vendor.msg>[^{}]+)/;
-
-  //Match Nasuni Syslog Audit Messages with embeded JSON
-  /<(?<Vendor.priority>\d+)>(?<Vendor.version>\d+)\s(?<nasuni_ts>\S+)\s+(?<host>\S+)\s+(?<Vendor.app>\S+)\s+(?<Vendor.procid>\S+)\s+(?<Vendor.msgid>\S+)\s+(?<Vendor.structuredata>\S+)(?<Vendor.msg>.*)/
-  | parseJson(Vendor.msg);
+    // Match Nasuni Syslog Audit Messages with embeded JSON
+    @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>\S+)\s+(?<host.name>\S+)\s+(?<log.syslog.appname>\S+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+(-|(?<log.syslog.structured_data>\S+))(?<Vendor.msg>.*)/
+      | parseJson(prefix="Vendor.", field=Vendor.msg, handleNull=discard, excludeEmpty=true)
+      | drop(Vendor.msg)
+      | event.provider := "auditman";
   }
-  | parseTimestamp("yyyy-MM-dd'T'HH:mm:ss[.SSSSSS]XXX", field=nasuni_ts)
-  | drop([nasuni_ts])
-  | kvParse()
+  | parseTimestamp("yyyy-MM-dd'T'HH:mm:ss[.SSSSSS]XXX", field=Vendor.nasuni_ts)
+  | drop([Vendor.nasuni_ts])
 
+  // #endregion
 
-  | Parser.version := "1.0.3"
-  | Vendor := "nasuni"
-  | event.module := "nea"
-  | ecs.version := "8.11.0"
-  | event.kind := "event"
+  // #region METADATA
+  /************************************************************
+  ****** Static Metadata Definitions
+  ************************************************************/
+  | Parser.version := "1.0.0"
   | Cps.version := "1.0.0"
+  | Vendor := "nasuni"
+  | ecs.version := "8.16.0"
+  | event.module := "edge"
+  | event.outcome := "success"
   | host.os.type := "linux"
   | host.os.platform := "os7"
+  | event.kind := "event"
 
+  // #endregion
+
+  // #region NORMALIZATION
+  /************************************************************
+  ****** Parse unstructured data (i.e. message field)
+  ****** Normalize fields to data model
+  ************************************************************/
+  | event.provider match {
+       "nmc" => array:append(array="event.category[]", values=["configuration"])
+        | array:append(array="event.type[]", values=["info"])
+        | event.dataset := "edge.nmc"
+        ;
+       "clamav" => array:append(array="event.category[]", values=["threat", "file"])
+        | event.kind := "alert"
+        | array:append(array="event.type[]", values=["indicator", "info"])
+        | event.dataset := "edge.clamav"
+        ;
+       "rwp" => event.kind := "alert"
+        | array:append(array="event.category[]", values=["network", "threat"])
+        | array:append(array="event.type[]", values=["allowed", "indicator"])
+        | event.dataset := "edge.rwp"
+        ;
+       "mit" => event.kind := "alert"
+        | array:append(array="event.category[]", values=["network", "threat"])
+        | array:append(array="event.type[]", values=["denied", "indicator"])
+        | event.dataset := "edge.mit"
+        ;
+       "auditman" => event.sequence := rename(Vendor.sequence)
+        | regex("^(?<user.domain>.*)\\\\(?<user.name>.*)$", field=Vendor.username, strict=false)
+        | process.pid := rename(Vendor.pid)
+        | source.ip := rename(Vendor.ipaddr)
+        | array:append(array="event.category[]", values=["file"])
+        | array:append(array="event.type[]", values=["change"])
+        | event.dataset := "edge.auditman"
+        | Vendor.result match {
+          /0/ => event.outcome := "success";
+          * => * | event.outcome := "failure";
+        }
+      ;
+  }
+  | host.name := lower(host.name)
+  // #endregion
+
+  // #region POST-NORMALIZATION
+  /************************************************************
+  ****** Post Normalization
+  ****** Custom parser logic needed after normalization
+  ************************************************************/
+
+
+  // #endregion
 tagFields:
 - Cps.version
 - Vendor
