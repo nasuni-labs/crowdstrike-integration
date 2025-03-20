@@ -1,5 +1,5 @@
 # crowdstrike-integration
-Templates to collect Nasuni syslog events, including Advanced Ransomware Protection, and forward into CrowdStrike XDR events using Falcon NG-SIEM.
+Templates to collect Nasuni syslog events, including Advanced Ransomware Protection, and forward into CrowdStrike XDR events using Falcon NG-SIEM. The latest parser (Named nasuni-edge) should always be available to NG-SIEM customers when adding the Nasuni Edge Events Data Connector with the NG-SIEM console.
 
 ## About
 CrowdStrike NG-SIEM extends real-time detection to external third parties by joining the CrowdStrike LogScale (formerly Humio) service into Falcon XDR and working with third party logs. This allows Nasuni syslog messages to be ingested and processed, then be made ready for search, reporting, dashboards and alert actions. Logs are collected using a premise-based collection agent, and into the storage repository for parsing and processing.
@@ -10,12 +10,19 @@ The Falcon LogScale Collector is the native log shipper for NG-SIEM that runs on
 ## Integration with CrowdStrike Falcon XDR
 The Falcon NG-SIEM Collector forwards Nasuni syslog events into the correct NG-SIEM repository. When collecting Advanced Ransomware incidents, log correlation, incident creation and Fusion SOAR workflows can be executed.
 
+## Support of the Integration
+Nasuni Support is responsible for ensuring that the core Nasuni services, such as Nasuni’s syslog service, on which the integration is built are functioning properly. Nasuni is responsible for updating the parser template to meet product enhancements that may affect the operation of the parser. 
+
+CrowdStrike supports the operation and troubleshooting of the log shipper (agent), NG-SIEM, XDR and other CrowdStrike components involved.
+
+
 ## Integration Requirements
 * Nasuni syslog service must target a deployed collector.
 * Operating System to Host a Falcon Logscale Collector (Linux or Windows).
 * NEA Syslog Configuration
 * NEA Audit Events (optional)
 * CrowdStrike Falcon XDR and NG-SIEM Subscription
+* The most up to date CrowdStrike/Nasuni integration guide can be found at https://falcon.us-2.crowdstrike.com/documentation/page/l30d7037/nasuni
 
 ## Integration Templates
 * nasuni-syslog-collector-config.yaml
