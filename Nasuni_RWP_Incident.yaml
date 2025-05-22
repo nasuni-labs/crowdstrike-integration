@@ -1,0 +1,35 @@
+- id: 2f7460c456044e66831822f5002da001
+  name: Nasuni_RWP_Incident
+  description: Creates an XDR incident upon match of a Nasuni Ransomware Attack alert using the configured confidence value. The configurable confidence value threshold to trigger the incident is anything greater than "2", the Nasuni default level for low.
+  customerid: 98ded543e99a4a44ac036710f7418b07
+  tactic: TA0040
+  technique: T1486
+  mitreattack:
+    - tacticid: TA0040
+      techniqueid: T1486
+  severity: 70
+  search:
+    outcome: incident
+    filter: '(Vendor.confidence_value >= 2 and #Vendor = "nasuni" and #event.dataset = "edge.rwp")'
+    lookback: 0h5m
+    triggermode: summary
+    useingesttime: false
+  operation:
+    schedule:
+        definition: '@every 0h5m'
+    starton: 2024-09-05T13:00:00Z
+    stopon: null
+    expirationon: null
+  apiclientid: ""
+  useruuid: 88c00470-4665-4b0f-8cbd-709ddfbaa3eb
+  userid: jkladis+crowdstrike@nasuni.com
+  author: ""
+  lastupdatedon: 2025-05-22T15:06:44.547188695Z
+  createdon: 2025-05-22T15:06:46.249300833Z
+  status: active
+  templateid: ""
+  ruleid: dec4f5e012a7474cab6afde4f6fe6bcd
+  state: published
+  version: 5
+  notifications: []
+  comment: rule updated using rules endpoint
