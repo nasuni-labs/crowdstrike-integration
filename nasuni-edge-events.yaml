@@ -165,109 +165,114 @@ testCases:
       noreferrer">Ransomware Information</a>.'
 $schema: https://schemas.humio.com/parser/v0.3.0
 script: |-
-  // Nasuni Edge Parser
-  // Copyright Nasuni
+// Nasuni Edge Parser
+// Copyright Nasuni
 
-  // #region PREPARSE
-  /************************************************************
-  ****** Parse timestamp and log headers
-  ****** Extract message field for parsing
-  ****** Parse structured data
-  ************************************************************/
+// #region PREPARSE
+/************************************************************
+****** Parse timestamp and log headers
+****** Extract message field for parsing
+****** Parse structured data
+************************************************************/
 
-  case {
-    // Match Nasuni Syslog Messages Where Messages Contain Content About Ransomware Attack - 9.14+
-    @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>\S+)\s+(?<host.name>\S+)\s+(?<log.syslog.appname>\S+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+(\S+)\s*The Filer has detected a new ransomware attack from user (?<user.name>\S+) \((?<client.ip>\S+)\) on volume (?<volume.mount_name>\S+)\. Detected known signatures: \((?<Vendor.signature>\S+)\)\. Confidence level at the time of detection was \"(?<Vendor.confidence_name>\S+) \((?<Vendor.confidence_value>\d)\)\".*\s*/
-      | event.provider := "rwp";
+case {
+  // Match Nasuni Syslog Messages Where Messages Contain Content About Ransomware Attack - 9.14+
+  @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>\S+)\s+(?<host.name>\S+)\s+(?<log.syslog.appname>\S+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+(\S+)\s*The Filer has detected a new ransomware attack from user (?<user.name>\S+) \((?<client.ip>\S+)\) on volume (?<volume.mount_name>\S+)\. Detected known signatures: \((?<Vendor.signature>\S+)\)\. Confidence level at the time of detection was \"(?<Vendor.confidence_name>\S+) \((?<Vendor.confidence_value>\d)\)\".*\s*/
+    | event.provider := "rwp";
 
-    // Match Nasuni Syslog Messages Where Messages Contain Content About Ransomware Mitigation Enforcement
-    @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>\S+)\s+(?<host.name>\S+)\s+(?<log.syslog.appname>\S+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+(\S+)\s*The Filer has enforced the mitigation policy on volume (?<volume.mount_name>\S+)(.*)and blocked an IP Address \((?<client.ip>\S+)\)\s*.*href="(?<threat.indicator.reference>https?:\/\/[^\"]+)"/
-      | event.provider := "mit";
+  // Match Nasuni Syslog Messages Where Messages Contain Content About Ransomware Mitigation Enforcement
+  @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>\S+)\s+(?<host.name>\S+)\s+(?<log.syslog.appname>\S+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+(\S+)\s*The Filer has enforced the mitigation policy on volume (?<volume.mount_name>\S+)(.*)and blocked an IP Address \((?<client.ip>\S+)\)\s*.*href="(?<threat.indicator.reference>https?:\/\/[^\"]+)"/
+    | event.provider := "mit";
 
-    // Match Nasuni Syslog Messages Where Messages Contain Content About ClamAV
-    @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>\S+)\s+(?<host.name>\S+)\s+(?<log.syslog.appname>\S+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+(\S+)\s*Antivirus has flagged file\(s\) on volume (?<volume.mount_name>\S+).*/
-      | event.provider := "clamav";
+  // Match Nasuni Syslog Messages Where Messages Contain Content About ClamAV
+  @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>\S+)\s+(?<host.name>\S+)\s+(?<log.syslog.appname>\S+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+(\S+)\s*Antivirus has flagged file\(s\) on volume (?<volume.mount_name>\S+).*/
+    | event.provider := "clamav";
 
-    // Match Nasuni NMC General Messages
-    @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>[^\s]+)\s+(?<host.name>[^\s]+)\s+(?<log.syslog.appname>[^\s]+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+-\s+(?<message>[^{}]+)/
-      | event.provider := "nmc";
+  // Match Nasuni NMC General Messages
+  @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>[^\s]+)\s+(?<host.name>[^\s]+)\s+(?<log.syslog.appname>[^\s]+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+-\s+(?<message>[^{}]+)/
+    | event.provider := "nmc";
 
-    // Match Nasuni Syslog Audit Messages with embeded JSON
-    @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>\S+)\s+(?<host.name>\S+)\s+(?<log.syslog.appname>\S+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+(-|(?<log.syslog.structured_data>\S+))(?<Vendor.msg>.*)/
-      | parseJson(prefix="Vendor.", field=Vendor.msg, handleNull=discard, excludeEmpty=true)
-      | drop(Vendor.msg)
-      | event.provider := "auditman";
-  }
-  | parseTimestamp("yyyy-MM-dd'T'HH:mm:ss[.SSSSSS]XXX", field=Vendor.nasuni_ts)
-  | drop([Vendor.nasuni_ts])
+  // Match Nasuni Syslog Audit Messages with embeded JSON
+  @rawstring = /<(?<log.syslog.priority>\d+)>(?<log.syslog.version>\d+)\s(?<Vendor.nasuni_ts>\S+)\s+(?<host.name>\S+)\s+(?<log.syslog.appname>\S+)\s+(?<log.syslog.procid>\S+)\s+(?<log.syslog.msgid>\S+)\s+(-|(?<log.syslog.structured_data>\S+))(?<Vendor.msg>.*)/
+    | parseJson(prefix="Vendor.", field=Vendor.msg, handleNull=discard, excludeEmpty=true)
+    | drop(Vendor.msg)
+    | event.provider := "auditman";
+}
+| parseTimestamp("yyyy-MM-dd'T'HH:mm:ss[.SSSSSS]XXX", field=Vendor.nasuni_ts)
+| drop([Vendor.nasuni_ts])
 
-  // #endregion
+// #endregion
 
-  // #region METADATA
-  /************************************************************
-  ****** Static Metadata Definitions
-  ************************************************************/
-  | Parser.version := "1.0.0"
-  | Cps.version := "1.0.0"
-  | Vendor := "nasuni"
-  | ecs.version := "8.16.0"
-  | event.module := "edge"
-  | event.outcome := "success"
-  | host.os.type := "linux"
-  | host.os.platform := "os7"
-  | event.kind := "event"
+// #region METADATA
+/************************************************************
+****** Static Metadata Definitions
+************************************************************/
+| Parser.version := "1.0.1"
+| Cps.version := "1.0.0"
+| Vendor := "nasuni"
+| ecs.version := "8.17.0"
+| event.module := "edge"
+| event.outcome := "success"
+| host.os.type := "linux"
+| host.os.platform := "os7"
+| event.kind := "event"
 
-  // #endregion
+// #endregion
 
-  // #region NORMALIZATION
-  /************************************************************
-  ****** Parse unstructured data (i.e. message field)
-  ****** Normalize fields to data model
-  ************************************************************/
-  | event.provider match {
-       "nmc" => array:append(array="event.category[]", values=["configuration"])
-        | array:append(array="event.type[]", values=["info"])
-        | event.dataset := "edge.nmc"
-        ;
-       "clamav" => array:append(array="event.category[]", values=["threat", "file"])
-        | event.kind := "alert"
-        | array:append(array="event.type[]", values=["indicator", "info"])
-        | event.dataset := "edge.clamav"
-        ;
-       "rwp" => event.kind := "alert"
-        | array:append(array="event.category[]", values=["network", "threat"])
-        | array:append(array="event.type[]", values=["allowed", "indicator"])
-        | event.dataset := "edge.rwp"
-        ;
-       "mit" => event.kind := "alert"
-        | array:append(array="event.category[]", values=["network", "threat"])
-        | array:append(array="event.type[]", values=["denied", "indicator"])
-        | event.dataset := "edge.mit"
-        ;
-       "auditman" => event.sequence := rename(Vendor.sequence)
-        | regex("^(?<user.domain>.*)\\\\(?<user.name>.*)$", field=Vendor.username, strict=false)
-        | process.pid := rename(Vendor.pid)
-        | source.ip := rename(Vendor.ipaddr)
-        | array:append(array="event.category[]", values=["file"])
-        | array:append(array="event.type[]", values=["change"])
-        | event.dataset := "edge.auditman"
-        | Vendor.result match {
-          /0/ => event.outcome := "success";
-          * => * | event.outcome := "failure";
-        }
-      ;
-  }
-  | host.name := lower(host.name)
-  // #endregion
+// #region NORMALIZATION
+/************************************************************
+****** Parse unstructured data (i.e. message field)
+****** Normalize fields to data model
+************************************************************/
+| event.provider match {
+    "nmc" =>
+      array:append(array="event.category[]", values=["configuration"])
+      | array:append(array="event.type[]", values=["info"])
+      | event.dataset := "edge.nmc"
+    ;
+    "clamav" =>
+      array:append(array="event.category[]", values=["threat", "file"])
+      | event.kind := "alert"
+      | array:append(array="event.type[]", values=["indicator", "info"])
+      | event.dataset := "edge.clamav"
+    ;
+    "rwp" =>
+      event.kind := "alert"
+      | array:append(array="event.category[]", values=["network", "threat"])
+      | array:append(array="event.type[]", values=["allowed", "indicator"])
+      | event.dataset := "edge.rwp"
+    ;
+    "mit" =>
+      event.kind := "alert"
+      | array:append(array="event.category[]", values=["network", "threat"])
+      | array:append(array="event.type[]", values=["denied", "indicator"])
+      | event.dataset := "edge.mit"
+    ;
+    "auditman" =>
+      event.sequence := Vendor.sequence
+      | regex("^(?<user.domain>.*)\\\\(?<user.name>.*)$", field=Vendor.username, strict=false)
+      | process.pid := Vendor.pid
+      | source.ip := Vendor.ipaddr
+      | array:append(array="event.category[]", values=["file"])
+      | array:append(array="event.type[]", values=["change"])
+      | event.dataset := "edge.auditman"
+      | Vendor.result match {
+        /0/ => event.outcome := "success";
+        * => * | event.outcome := "failure";
+      }
+    ;
+}
+| host.name := lower(host.name)
+// #endregion
 
-  // #region POST-NORMALIZATION
-  /************************************************************
-  ****** Post Normalization
-  ****** Custom parser logic needed after normalization
-  ************************************************************/
+// #region POST-NORMALIZATION
+/************************************************************
+****** Post Normalization
+****** Custom parser logic needed after normalization
+************************************************************/
 
 
-  // #endregion
+// #endregion
 tagFields:
 - Cps.version
 - Vendor
