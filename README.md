@@ -34,4 +34,7 @@ CrowdStrike supports the operation and troubleshooting of the log shipper (agent
 * Nasuni_Email_1.yaml
   * Automation action with email recipient information.
 * Nasuni_RWP_Incident.yaml
-  * A NG-SIEM rule template that will create an incident when NG-SIEM ingests a Nasuni syslog event of a ransomware detection and/or mitigation. 
+  * A NG-SIEM rule template that will create an incident when NG-SIEM ingests a Nasuni syslog event of a ransomware detection and/or mitigation.
+* Nasuni Edge Alert Device Containment.yaml
+  * A SOAR workflow that when triggered by a Nasuni NG-SIEM alert with a client IP address, will lookup the host's agent ID where available and contain it. 
+
