@@ -1,0 +1,53 @@
+# This is an exported workflow. Editing this file is not recommended.
+
+name: Nasuni Edge Alert Device Containment
+description: A workflow that when triggered by a Nasuni NG-SIEM alert with a client IP address, will lookup the host's agent ID where available and contain it.
+trigger:
+    next:
+        - name_is_equal_to_nasuni_rwp_incident_5dc91915
+    event: Investigatable/XDR
+    type: Signal
+conditions:
+    name_is_equal_to_nasuni_rwp_incident_5dc91915:
+        next:
+            - category_investigatable_product_xdr_entityvalues_ipv4s_81a65120
+        expression: Trigger.Category.Investigatable.Name:'Nasuni_RWP_Incident'
+        display:
+            - Name is equal to Nasuni_RWP_Incident
+loops:
+    category_investigatable_product_xdr_entityvalues_ipv4s_81a65120:
+        display: For each IPv4 addresses; Concurrently
+        for:
+            input: Trigger.Category.Investigatable.Product.XDR.EntityValues.IPv4s
+            continue_on_partial_execution: false
+            sequential: false
+        trigger:
+            next:
+                - event_query___ipv4_agent_id_7cdfc97c
+            type: SubModel
+        actions:
+            event_query___ipv4_agent_id_7cdfc97c:
+                next:
+                    - activity_7cdfc97c_06f1_45d8_a7e7_e575d8dd58d6_logscale_searchresult_ipv4_agent_id_results_b3b94d5f
+                id: 98ded543e99a4a44ac036710f7418b07_98ded543e99a4a44ac036710f7418b07_7d899f2f4f56429c8c50965600bdfd24
+                properties:
+                    LocalAddressIP4: ${Trigger.Category.Investigatable.Product.XDR.EntityValues.IPv4s.#}
+                    output_files_only: false
+                    workflow_csv_header_fields: []
+                    workflow_export_event_query_results_to_csv: false
+        loops:
+            activity_7cdfc97c_06f1_45d8_a7e7_e575d8dd58d6_logscale_searchresult_ipv4_agent_id_results_b3b94d5f:
+                display: For each Event query results; Concurrently
+                for:
+                    input: event_query___ipv4_agent_id_7cdfc97c.LogScale.SearchResult.IPV4-Agent-ID.results
+                    continue_on_partial_execution: false
+                    sequential: false
+                trigger:
+                    next:
+                        - contain_device_20904af1
+                    type: SubModel
+                actions:
+                    contain_device_20904af1:
+                        id: bec9fbeb4999d207937854fd56088107
+                        properties:
+                            device_id: ${event_query___ipv4_agent_id_7cdfc97c.LogScale.SearchResult.IPV4-Agent-ID.results.#.aid}
